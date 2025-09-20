@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Psychology Study Exam</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body {
+            background-color: #F5F5F4; /* Warm neutral background */
+            font-family: 'Inter', sans-serif;
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        .nav-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .nav-btn.active {
+            background-color: #3B82F6;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .option-btn {
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            border: 2px solid transparent;
+        }
+        .option-btn:hover:not(.disabled) {
+            background-color: #EFF6FF;
+            border-color: #60A5FA;
+        }
+        .option-btn.correct {
+            background-color: #D1FAE5;
+            border-color: #34D399;
+            color: #065F46;
+            font-weight: 600;
+        }
+        .option-btn.incorrect {
+            background-color: #FEE2E2;
+            border-color: #F87171;
+            color: #991B1B;
+            font-weight: 600;
+        }
+        .option-btn.disabled {
+            cursor: not-allowed;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="container mx-auto max-w-5xl p-4 sm:p-6 lg:p-8">
+
+        <header class="bg-white rounded-xl shadow-md p-6 mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 text-center mb-2">Interactive Psychology Exam</h1>
+            <p class="text-center text-gray-600 mb-6">Select a category to begin studying. Your answers will be checked instantly.</p>
+            <div id="scoreboard" class="bg-blue-50 text-blue-800 rounded-lg p-4 text-center">
+                <p class="text-lg font-semibold">Score: <span id="score">0</span> / <span id="total-attempted">0</span></p>
+                <p class="text-2xl font-bold mt-1"><span id="percentage">0</span>%</p>
+            </div>
+        </header>
+        
+        <nav class="flex flex-col sm:flex-row justify-center items-center gap-3 mb-8" id="category-nav">
+            <button data-category="historyAndResearch" class="nav-btn w-full sm:w-auto active bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-6 rounded-lg shadow">History & Research</button>
+            <button data-category="biologicalPsych" class="nav-btn w-full sm:w-auto bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-6 rounded-lg shadow">Biological Psych</button>
+            <button data-category="sensationAndPerception" class="nav-btn w-full sm:w-auto bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-6 rounded-lg shadow">Sensation & Perception</button>
+        </nav>
+
+        <main id="question-container" class="space-y-6">
+            <!-- Questions will be dynamically inserted here -->
+        </main>
+        
+        <footer class="text-center mt-12">
+            <button id="reset-btn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-8 rounded-lg shadow-md transition-transform transform hover:scale-105">Reset Exam</button>
+        </footer>
+
+    </div>
+
+    <script>
+        const examData = {
+            historyAndResearch: [
+                { q: "The school of thought that sought to understand the basic elements of consciousness through introspection was known as:", o: ["Functionalism", "Behaviorism", "Structuralism", "Psychoanalysis"], a: 2 },
+                { q: "Which modern perspective emphasizes the role of the unconscious mind and unresolved childhood conflicts in shaping behavior?", o: ["Cognitive", "Humanistic", "Psychodynamic", "Behavioral"], a: 2 },
+                { q: "A psychologist who studies how people process information, solve problems, and make decisions is likely following the:", o: ["Behavioral perspective", "Cognitive perspective", "Humanistic perspective", "Psychodynamic perspective"], a: 1 },
+                { q: "The main goal of descriptive research is to:", o: ["Determine cause-and-effect relationships.", "Predict behavior.", "Observe and record behavior without manipulating variables.", "Find a correlation between variables."], a: 2 },
+                { q: "A researcher wants to study if there is a relationship between the number of hours spent exercising and self-reported happiness. This type of research is:", o: ["Experimental", "Correlational", "Descriptive", "Case study"], a: 1 },
+                { q: "In a study, a researcher finds that as the temperature outside decreases, the number of coats people wear increases. This is an example of a:", o: ["Positive correlation", "Negative correlation", "No correlation", "Spurious correlation"], a: 0 },
+                { q: "A **confounding variable** in an experiment is:", o: ["The variable that is measured by the researcher.", "The variable that is manipulated by the researcher.", "An unplanned variable that can affect the results of the experiment.", "The variable that is kept constant."], a: 2 },
+                { q: "The **independent variable** in an experiment is the one that is:", o: ["Measured by the researcher.", "Manipulated by the researcher.", "Affected by the dependent variable.", "Eliminated to prevent confounding."], a: 1 },
+                { q: "What is the main advantage of an experiment over a correlational study?", o: ["Experiments can be conducted more quickly.", "Experiments can establish cause-and-effect relationships.", "Experiments can be used to study rare phenomena.", "Experiments are less prone to the placebo effect."], a: 1 },
+                { q: "Which step is NOT part of the condensed version of the scientific method?", o: ["Formulate a hypothesis", "Use descriptive statistics", "Collect data", "Analyze data"], a: 1 },
+                { q: "A single-case study is a type of:", o: ["Experimental research", "Correlational research", "Descriptive research", "Inferential statistics"], a: 2 },
+                { q: "In an experimental study, the group that receives a treatment is the:", o: ["Control group", "Experimental group", "Placebo group", "Correlational group"], a: 1 },
+                { q: "Inferential statistics are used to:", o: ["Describe the main characteristics of a dataset.", "Determine if the results of an experiment are due to chance.", "Find the correlation between two variables.", "Summarize and organize data."], a: 1 },
+                { q: "The school of thought that focused on how the mind and behavior help an organism adapt to its environment is:", o: ["Structuralism", "Functionalism", "Psychoanalysis", "Humanism"], a: 1 },
+                { q: "Who is considered the 'father of psychology' for establishing the first psychological laboratory?", o: ["Sigmund Freud", "Wilhelm Wundt", "William James", "John B. Watson"], a: 1 }
+            ],
+            biologicalPsych: [
+                { q: "The part of the neuron that receives signals from other neurons is the:", o: ["Axon", "Myelin sheath", "Dendrite", "Synapse"], a: 2 },
+                { q: "The brief electrical charge that travels down the axon of a neuron is called the:", o: ["Resting potential", "Action potential", "Neurotransmission", "Reuptake"], a: 1 },
+                { q: "The tiny gap between two neurons where chemical signals are transmitted is the:", o: ["Axon hillock", "Myelin sheath", "Synapse", "Dendrite"], a: 2 },
+                { q: "The process by which neurotransmitters are reabsorbed by the sending neuron is called:", o: ["Action potential", "Reuptake", "Synaptic transmission", "Depolarization"], a: 1 },
+                { q: "Which of the following neurotransmitters is most associated with mood, sleep, and appetite?", o: ["Dopamine", "Serotonin", "Acetylcholine", "Norepinephrine"], a: 1 },
+                { q: "A drug that blocks a neurotransmitter's effects is a(n):", o: ["Agonist", "Antagonist", "Inhibitor", "Stimulant"], a: 1 },
+                { q: "The brain and the spinal cord make up the:", o: ["Peripheral Nervous System", "Central Nervous System", "Endocrine System", "Autonomic Nervous System"], a: 1 },
+                { q: "Which lobe of the brain is primarily responsible for vision?", o: ["Frontal Lobe", "Parietal Lobe", "Temporal Lobe", "Occipital Lobe"], a: 3 },
+                { q: "The brain's ability to change and adapt as a result of experience is known as:", o: ["Brain plasticity", "Synaptic pruning", "Neurogenesis", "Myelination"], a: 0 },
+                { q: "The part of the neuron that speeds up the action potential is the:", o: ["Dendrite", "Axon terminal", "Myelin sheath", "Cell body"], a: 2 },
+                { q: "Which neurotransmitter is a major excitatory neurotransmitter in the brain?", o: ["GABA", "Dopamine", "Glutamate", "Serotonin"], a: 2 },
+                { q: "The **frontal lobe** is primarily involved in:", o: ["Auditory processing", "Sensation", "Planning and decision-making", "Vision"], a: 2 },
+                { q: "The **parietal lobe** is primarily responsible for:", o: ["Hearing", "Spatial awareness and sensation", "Motor control", "Language production"], a: 1 },
+                { q: "The master gland of the endocrine system is the:", o: ["Adrenal gland", "Pituitary gland", "Thyroid gland", "Pancreas"], a: 1 },
+                { q: "The brain structure responsible for coordinating voluntary movements and balance is the:", o: ["Hypothalamus", "Thalamus", "Cerebellum", "Amygdala"], a: 2 }
+            ],
+            sensationAndPerception: [
+                { q: "The process by which our sensory receptors receive stimulus energies from the environment is called:", o: ["Perception", "Sensation", "Transduction", "Interpretation"], a: 1 },
+                { q: "The process of organizing and interpreting sensory information, enabling us to recognize meaningful objects and events, is called:", o: ["Sensation", "Transduction", "Perception", "Absolute threshold"], a: 2 },
+                { q: "Which part of the eye is responsible for bending light to focus it on the retina?", o: ["Iris", "Pupil", "Lens", "Fovea"], a: 2 },
+                { q: "The retina contains two types of receptor cells:", o: ["Rods and cones", "Optic nerves and bipolar cells", "Corneas and lenses", "Iris and pupils"], a: 0 },
+                { q: "The part of the retina that contains a high concentration of cones and is responsible for sharp, detailed vision is the:", o: ["Blind spot", "Optic nerve", "Fovea", "Peripheral retina"], a: 2 },
+                { q: "Which type of photoreceptor is best for seeing in low light conditions?", o: ["Cones", "Rods", "Bipolar cells", "Ganglion cells"], a: 1 },
+                { q: "The **cochlea** is a part of the ear responsible for:", o: ["Collecting sound waves", "Amplifying vibrations", "Transducing sound vibrations into neural signals", "Maintaining balance"], a: 2 },
+                { q: "The outer ear is composed of the pinna, the auditory canal, and the:", o: ["Eardrum", "Cochlea", "Hammer, anvil, and stirrup", "Semicircular canals"], a: 0 },
+                { q: "The process of converting physical energy, such as light or sound waves, into neural signals is called:", o: ["Sensation", "Perception", "Transduction", "Encoding"], a: 2 },
+                { q: "When you see a red car, the light waves bouncing off the car and entering your eyes are an example of:", o: ["Sensation", "Perception", "Transduction", "Afterimage"], a: 0 },
+                { q: "The **pinna** is the part of the ear responsible for:", o: ["Hearing in a low-light environment", "Focusing sound waves into the ear canal", "Maintaining balance", "Transducing sound into neural signals"], a: 1 },
+                { q: "Cones are best for:", o: ["Night vision", "Peripheral vision", "Color vision", "All of the above"], a: 2 },
+                { q: "Which of the following is a type of psychological research that does not involve manipulating variables?", o: ["Experimental research", "Correlational research", "Both A and B", "Neither A nor B"], a: 1 },
+                { q: "Which part of the brain is responsible for processing auditory information?", o: ["Temporal lobe", "Occipital lobe", "Frontal lobe", "Parietal lobe"], a: 0 },
+                { q: "The absolute threshold refers to the:", o: ["Minimum amount of stimulation needed to detect a stimulus 50% of the time.", "The smallest detectable difference between two stimuli.", "The process of turning a sensation into a perception.", "The difference between rods and cones."], a: 0 },
+                { q: "When a sound wave travels through the ear, which of the following is the correct order of the structures it passes through?", o: ["Cochlea, eardrum, ossicles", "Pinna, eardrum, ossicles", "Auditory nerve, cochlea, eardrum", "Cochlea, auditory nerve, pinna"], a: 1 },
+                { q: "The 'all-or-none' principle refers to the fact that:", o: ["A neuron either fires completely or it does not fire at all.", "The strength of a sensation is all that matters.", "All neurons use the same neurotransmitter.", "All stimuli must meet a certain threshold to be perceived."], a: 0 },
+                { q: "The **cerebrum** is divided into two hemispheres, and each hemisphere contains:", o: ["A single lobe", "Two lobes", "Three lobes", "Four lobes"], a: 3 },
+                { q: "What is the main purpose of the **myelin sheath**?", o: ["To receive signals from other neurons.", "To speed up the transmission of neural impulses.", "To store neurotransmitters.", "To connect the brain to the spinal cord."], a: 1 },
+                { q: "The main distinction between **sensation** and **perception** is that:", o: ["Sensation is bottom-up processing, while perception is top-down.", "Sensation is top-down processing, while perception is bottom-up.", "Sensation is a conscious process, while perception is not.", "Sensation is a biological process, while perception is psychological."], a: 0 }
+            ],
+        };
+
+        let state = {
+            currentCategory: 'historyAndResearch',
+            userAnswers: {},
+            score: 0,
+            attempted: 0,
+        };
+
+        const questionContainer = document.getElementById('question-container');
+        const categoryNav = document.getElementById('category-nav');
+        const scoreEl = document.getElementById('score');
+        const totalAttemptedEl = document.getElementById('total-attempted');
+        const percentageEl = document.getElementById('percentage');
+        const resetBtn = document.getElementById('reset-btn');
+
+        function renderQuestions() {
+            questionContainer.innerHTML = '';
+            const questions = examData[state.currentCategory];
+            questions.forEach((qData, index) => {
+                const questionId = `${state.currentCategory}-${index}`;
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-xl shadow-md p-6';
+                
+                let optionsHtml = '';
+                qData.o.forEach((option, optionIndex) => {
+                    optionsHtml += `<div class="option-btn p-3 mt-2 bg-gray-100 rounded-lg" data-question-id="${questionId}" data-option-index="${optionIndex}">${String.fromCharCode(97 + optionIndex)}) ${option}</div>`;
+                });
+
+                card.innerHTML = `
+                    <p class="font-semibold text-lg text-gray-900">${index + 1}. ${qData.q}</p>
+                    <div class="options-container mt-4 space-y-2">${optionsHtml}</div>
+                `;
+                questionContainer.appendChild(card);
+            });
+        }
+
+        function handleAnswerClick(e) {
+            const target = e.target.closest('.option-btn');
+            if (!target) return;
+
+            const { questionId, optionIndex } = target.dataset;
+            if (state.userAnswers[questionId] !== undefined) return; 
+
+            const [category, qIndexStr] = questionId.split('-');
+            const qIndex = parseInt(qIndexStr);
+            const questionData = examData[category][qIndex];
+            const selectedOption = parseInt(optionIndex);
+
+            state.userAnswers[questionId] = selectedOption;
+            state.attempted++;
+
+            const optionsContainer = target.parentElement;
+            const allOptions = optionsContainer.querySelectorAll('.option-btn');
+            
+            allOptions.forEach(opt => opt.classList.add('disabled'));
+
+            if (selectedOption === questionData.a) {
+                state.score++;
+                target.classList.add('correct');
+            } else {
+                target.classList.add('incorrect');
+                allOptions[questionData.a].classList.add('correct');
+            }
+            updateScoreboard();
+        }
+        
+        function updateScoreboard() {
+            scoreEl.textContent = state.score;
+            totalAttemptedEl.textContent = state.attempted;
+            const percentage = state.attempted === 0 ? 0 : Math.round((state.score / state.attempted) * 100);
+            percentageEl.textContent = percentage;
+        }
+
+        function handleNavClick(e) {
+            if (e.target.tagName !== 'BUTTON') return;
+            const newCategory = e.target.dataset.category;
+            if (newCategory === state.currentCategory) return;
+            
+            state.currentCategory = newCategory;
+            
+            document.querySelectorAll('#category-nav button').forEach(btn => btn.classList.remove('active'));
+            e.target.classList.add('active');
+            
+            renderQuestions();
+        }
+        
+        function resetExam() {
+            state.userAnswers = {};
+            state.score = 0;
+            state.attempted = 0;
+            updateScoreboard();
+            renderQuestions();
+        }
+
+        function init() {
+            categoryNav.addEventListener('click', handleNavClick);
+            questionContainer.addEventListener('click', handleAnswerClick);
+            resetBtn.addEventListener('click', resetExam);
+            renderQuestions();
+            updateScoreboard();
+        }
+
+        init();
+    </script>
+</body>
+</html>
