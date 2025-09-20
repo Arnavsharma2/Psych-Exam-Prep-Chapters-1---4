@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interactive Psychology Study Exam</title>
     <script src="https://cdn.tailwindcss.com"></script>
-
     <style>
         body {
             background-color: #F5F5F4; /* Warm neutral background */
@@ -52,7 +51,10 @@
     <div class="container mx-auto max-w-5xl p-4 sm:p-6 lg:p-8">
 
         <header class="bg-white rounded-xl shadow-md p-6 mb-8">
-            <h1 class="text-3xl font-bold text-gray-900 text-center mb-2">Interactive Psychology Exam</h1>
+            <div class="flex justify-between items-center mb-4">
+                <h1 class="text-3xl font-bold text-gray-900">Interactive Psychology Exam: Test 1</h1>
+                <a href="test2.html" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg shadow-md inline-block transition-transform transform hover:scale-105">Go to Test 2</a>
+            </div>
             <p class="text-center text-gray-600 mb-6">Select a category to begin studying. Your answers will be checked instantly.</p>
             <div id="scoreboard" class="bg-blue-50 text-blue-800 rounded-lg p-4 text-center">
                 <p class="text-lg font-semibold">Score: <span id="score">0</span> / <span id="total-attempted">0</span></p>
