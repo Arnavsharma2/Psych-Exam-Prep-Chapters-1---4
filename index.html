@@ -71,6 +71,39 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 8px -1px rgb(0 0 0 / 0.15), 0 4px 6px -2px rgb(0 0 0 / 0.1);
         }
+        .exam-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .exam-dropdown select {
+            background-color: #3B82F6;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            background-size: 16px;
+            padding-right: 40px;
+            min-width: 120px;
+            transition: all 0.2s ease;
+        }
+        .exam-dropdown select:hover {
+            background-color: #2563EB;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .exam-dropdown select:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
     </style>
 </head>
 <body class="text-gray-800">
@@ -78,9 +111,19 @@
     <div class="container mx-auto max-w-5xl p-4 sm:p-6 lg:p-8">
 
         <header class="bg-white rounded-xl shadow-md p-6 mb-8">
-            <div class="flex justify-between items-center mb-4">
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
                 <h1 class="text-3xl font-bold text-gray-900">Interactive Psychology Exam: Test 1</h1>
-                <a href="exam2.html" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg shadow-md inline-block transition-transform transform hover:scale-105">Go to Test 2</a>
+                <div class="flex items-center gap-4">
+                    <div class="exam-dropdown">
+                        <select id="exam-selector">
+                            <option value="index.html" selected>Test 1</option>
+                            <option value="exam2.html">Test 2</option>
+                            <option value="exam3.html">Test 3</option>
+                            <option value="exam4.html">Test 4</option>
+                        </select>
+                    </div>
+                    <a href="exam2.html" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg shadow-md inline-block transition-transform transform hover:scale-105">Next Test</a>
+                </div>
             </div>
             <p class="text-center text-gray-600 mb-6">Select a category to begin studying. Your answers will be checked instantly.</p>
             <div id="scoreboard" class="bg-blue-50 text-blue-800 rounded-lg p-4 text-center">
@@ -182,6 +225,7 @@
         const percentageEl = document.getElementById('percentage');
         const resetBtn = document.getElementById('reset-btn');
         const scrollToTopBtn = document.getElementById('scroll-to-top');
+        const examSelector = document.getElementById('exam-selector');
 
         function renderQuestions() {
             questionContainer.innerHTML = '';
@@ -277,11 +321,19 @@
             }
         }
 
+        function handleExamChange() {
+            const selectedExam = examSelector.value;
+            if (selectedExam !== 'index.html') {
+                window.location.href = selectedExam;
+            }
+        }
+
         function init() {
             categoryNav.addEventListener('click', handleNavClick);
             questionContainer.addEventListener('click', handleAnswerClick);
             resetBtn.addEventListener('click', resetExam);
             scrollToTopBtn.addEventListener('click', scrollToTop);
+            examSelector.addEventListener('change', handleExamChange);
             window.addEventListener('scroll', toggleScrollButton);
             renderQuestions();
             updateScoreboard();
