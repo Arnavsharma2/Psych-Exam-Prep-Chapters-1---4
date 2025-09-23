@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Psychology Exam: Test 4</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chosen Palette: Calm Harmony -->
+    <!-- Application Structure Plan: The SPA is designed as an interactive study tool, not a formal test. It's structured into three thematic sections mirroring the exam content, allowing users to focus their study. The core interaction is immediate feedback: users select an answer and instantly see if it's correct, which reinforces learning. A dynamic scoreboard provides constant progress tracking. This structure was chosen for its user-friendliness and focus on active recall and reinforcement, which is more effective for studying than a traditional test format. -->
+    <!-- Visualization & Content Choices: The primary content is the multiple-choice questions from the source report. Goal: Test Knowledge & Reinforce Learning. Presentation Method: Interactive quiz cards. Interaction: Users click an option to get immediate color-coded feedback (green for correct, red for incorrect). Justification: This direct interaction provides instant gratification and solidifies learning by correcting misunderstandings on the spot. A dynamic scoreboard (HTML/CSS/JS) visualizes progress. No charts are needed as the source material is textual. Library/Method: Vanilla JavaScript for all logic and DOM manipulation. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            background-color: #F5F5F4;
+            font-family: 'Inter', sans-serif;
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        .nav-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .nav-btn.active {
+            background-color: #3B82F6;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .option-btn {
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            border: 2px solid transparent;
+        }
+        .option-btn:hover:not(.disabled) {
+            background-color: #EFF6FF;
+            border-color: #60A5FA;
+        }
+        .option-btn.correct {
+            background-color: #D1FAE5;
+            border-color: #34D399;
+            color: #065F46;
+            font-weight: 600;
+        }
+        .option-btn.incorrect {
+            background-color: #FEE2E2;
+            border-color: #F87171;
+            color: #991B1B;
+            font-weight: 600;
+        }
+        .option-btn.disabled {
+            cursor: not-allowed;
+            opacity: 0.9;
+        }
+        .scroll-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #3B82F6;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: all 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+            z-index: 1000;
+        }
+        .scroll-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .scroll-to-top:hover {
+            background-color: #2563EB;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px -1px rgb(0 0 0 / 0.15), 0 4px 6px -2px rgb(0 0 0 / 0.1);
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="container mx-auto max-w-5xl p-4 sm:p-6 lg:p-8">
+
+        <header class="bg-white rounded-xl shadow-md p-6 mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 text-center mb-2">Interactive Psychology Exam: Test 4</h1>
+            <p class="text-center text-gray-600 mb-6">Select a category to begin studying. Your answers will be checked instantly.</p>
+            <div id="scoreboard" class="bg-blue-50 text-blue-800 rounded-lg p-4 text-center">
+                <p class="text-lg font-semibold">Score: <span id="score">0</span> / <span id="total-attempted">0</span></p>
+                <p class="text-2xl font-bold mt-1"><span id="percentage">0</span>%</p>
+            </div>
+        </header>
+        
+        <nav class="flex flex-col sm:flex-row justify-center items-center gap-3 mb-8" id="category-nav">
+            <button data-category="historyAndResearch" class="nav-btn w-full sm:w-auto active bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-6 rounded-lg shadow">History & Research</button>
+            <button data-category="biologicalPsych" class="nav-btn w-full sm:w-auto bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-6 rounded-lg shadow">Biological Psych</button>
+            <button data-category="sensationAndPerception" class="nav-btn w-full sm:w-auto bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-6 rounded-lg shadow">Sensation & Perception</button>
+        </nav>
+
+        <main id="question-container" class="space-y-6">
+            <!-- Questions will be dynamically inserted here -->
+        </main>
+        
+        <footer class="text-center mt-12 space-x-4">
+            <button id="reset-btn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-8 rounded-lg shadow-md transition-transform transform hover:scale-105">Reset Exam</button>
+            <a href="exam3.html" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-8 rounded-lg shadow-md inline-block transition-transform transform hover:scale-105">Go to Test 3</a>
+        </footer>
+
+    </div>
+
+    <!-- Scroll to Top Button -->
+    <button id="scroll-to-top" class="scroll-to-top" title="Scroll to top">↑</button>
+
+    <script>
+        const examData = {
+            historyAndResearch: [
+                { q: "The psychological perspective that focuses on how people process, store, and retrieve information is:", o: ["Behavioral", "Humanistic", "Cognitive", "Psychodynamic"], a: 2 },
+                { q: "A study finds a strong negative correlation between hours spent watching TV and GPA. This means:", o: ["Watching TV causes lower grades.", "Lower grades cause more TV watching.", "As TV time increases, GPA tends to decrease.", "There is no relationship between TV time and GPA."], a: 2 },
+                { q: "Which of the following is an example of an experiment?", o: ["Observing how children play on a playground.", "Asking people their opinions on a political issue.", "Giving one group a new drug and another a placebo to see the effects.", "Interviewing a person with a rare psychological disorder."], a: 2 },
+                { q: "The **dependent variable** in an experiment is the one that is:", o: ["Manipulated by the researcher.", "Measured to determine the effects of the independent variable.", "Kept constant to prevent confounding.", "Used to select the study participants."], a: 1 },
+                { q: "The main weakness of a correlational study is that it cannot:", o: ["Be used with large groups of people.", "Measure the strength of a relationship.", "Establish a cause-and-effect relationship.", "Be used to make predictions."], a: 2 },
+                { q: "The **mind-brain problem** refers to the philosophical question of:", o: ["Whether the mind is separate from the physical body and brain.", "Whether behavior is a product of nature or nurture.", "How the brain processes information.", "The difference between sensation and perception."], a: 0 },
+                { q: "Which modern perspective emphasizes observable behavior and the role of the environment?", o: ["Biological", "Humanistic", "Cognitive", "Behavioral"], a: 3 },
+                { q: "In the scientific method, a **hypothesis** is a:", o: ["Broad, overarching explanation of a phenomenon.", "Testable prediction based on a theory.", "Summary of collected data.", "Final conclusion of a study."], a: 1 },
+                { q: "What is **external validity** in research?", o: ["The degree to which a study's results are not due to confounding variables.", "The degree to which a study's results can be generalized to other people and situations.", "The consistency of a research measure.", "The accuracy of the research findings."], a: 1 },
+                { q: "Who is known for promoting the school of **functionalism**?", o: ["Wilhelm Wundt", "William James", "B.F. Skinner", "Sigmund Freud"], a: 1 },
+                { q: "The main goal of inferential statistics is to:", o: ["Summarize the characteristics of a sample.", "Determine the mean and standard deviation of a dataset.", "Make generalizations about a population from a sample.", "Describe the relationship between two variables."], a: 2 },
+                { q: "The **observer effect** is a potential issue in which type of research?", o: ["Case study", "Survey", "Naturalistic observation", "Experiment"], a: 2 },
+                { q: "Freud's **psychoanalytic theory** focused on the influence of:", o: ["Observable behaviors", "Unconscious thoughts and conflicts", "Free will and self-actualization", "Cognitive processes"], a: 1 },
+                { q: "The main difference between descriptive and correlational research is that:", o: ["Descriptive research studies one variable, while correlational studies two or more.", "Descriptive research can find cause and effect, while correlational cannot.", "Correlational research is less scientific than descriptive research.", "Descriptive research is only used with surveys."], a: 0 },
+                { q: "Which perspective would be most interested in studying how people learn new behaviors through reinforcement and punishment?", o: ["Psychodynamic", "Humanistic", "Behavioral", "Biological"], a: 2 }
+            ],
+            biologicalPsych: [
+                { q: "The process of a neuron firing, which is an all-or-none event, is called the:", o: ["Resting potential", "Depolarization", "Action potential", "Reuptake"], a: 2 },
+                { q: "The part of the nervous system that contains the brain and spinal cord is the:", o: ["Peripheral Nervous System", "Somatic Nervous System", "Central Nervous System", "Autonomic Nervous System"], a: 2 },
+                { q: "Which neurotransmitter is primarily involved in muscle movement and memory?", o: ["Serotonin", "Dopamine", "Acetylcholine", "GABA"], a: 2 },
+                { q: "The **Parietal Lobe** of the brain is primarily responsible for:", o: ["Processing auditory information.", "Regulating emotion and fear.", "Processing sensory information like touch and temperature.", "Making plans and decisions."], a: 2 },
+                { q: "A drug that mimics the action of a natural neurotransmitter is called a(n):", o: ["Antagonist", "Agonist", "Inhibitor", "Reuptake blocker"], a: 1 },
+                { q: "The **endocrine system** communicates through chemical messengers called:", o: ["Neurotransmitters", "Hormones", "Action potentials", "Synapses"], a: 1 },
+                { q: "Which brain structure is primarily involved in emotional responses, particularly fear and anger?", o: ["Hypothalamus", "Thalamus", "Amygdala", "Hippocampus"], a: 2 },
+                { q: "Which brain imaging technique tracks blood flow to different parts of the brain to see which areas are active?", o: ["EEG", "PET scan", "fMRI", "MRI"], a: 2 },
+                { q: "The **corpus callosum** is a large bundle of nerve fibers that:", o: ["Connects the brain to the spinal cord.", "Regulates the body's internal temperature.", "Connects the two hemispheres of the cerebrum.", "Controls the pituitary gland."], a: 2 },
+                { q: "Damage to the **temporal lobe** would most likely affect a person's:", o: ["Vision", "Motor coordination", "Hearing", "Spatial awareness"], a: 2 },
+                { q: "A person with a 'split-brain' would have had their **corpus callosum** severed, most likely to treat:", o: ["Alzheimer's disease", "Depression", "Epilepsy", "Parkinson's disease"], a: 2 },
+                { q: "The division of the autonomic nervous system that calms the body after a stress response is the:", o: ["Sympathetic nervous system", "Somatic nervous system", "Parasympathetic nervous system", "Central nervous system"], a: 2 },
+                { q: "Phrenology was a pseudoscientific practice that involved:", o: ["Measuring the bumps on a person's skull to determine their personality.", "Studying the shape of a person's eyes to determine their intelligence.", "Analyzing a person's dreams to understand their unconscious.", "Using brain scans to diagnose mental illness."], a: 0 },
+                { q: "The main difference between a **neuron** and a **glial cell** is that:", o: ["Neurons transmit electrical signals, while glial cells support and protect neurons.", "Glial cells transmit electrical signals, while neurons are for support.", "Neurons are part of the Central Nervous System, while glial cells are in the Peripheral Nervous System.", "Glial cells are responsible for hormones, while neurons are not."], a: 0 },
+                { q: "Which of the following is NOT a major lobe of the brain?", o: ["Frontal Lobe", "Parietal Lobe", "Cerebellum", "Occipital Lobe"], a: 2 }
+            ],
+            sensationAndPerception: [
+                { q: "The **Pinna** of the ear is primarily responsible for:", o: ["Amplifying sound vibrations.", "Converting sound waves into neural signals.", "Collecting sound waves and directing them into the ear canal.", "Maintaining balance and equilibrium."], a: 2 },
+                { q: "Which part of the eye is responsible for color and sharp, detailed vision?", o: ["Rods", "Cones", "Pupil", "Lens"], a: 1 },
+                { q: "The **Ponzo illusion** and the **Muller-Lyer illusion** are both examples of how our perception can be influenced by:", o: ["Auditory cues", "Expectations and context", "Binocular vision", "The lack of sensation"], a: 1 },
+                { q: "The **difference threshold** (JND) is the smallest amount of change in a stimulus that is detected:", o: ["100% of the time.", "50% of the time.", "10% of the time.", "Never."], a: 1 },
+                { q: "Which theory of hearing states that pitch is determined by the rate at which the hair cells vibrate?", o: ["Place theory", "Frequency theory", "Opponent-process theory", "Gate-control theory"], a: 1 },
+                { q: "The **retina** contains cells that have a high concentration of **rods**, which are best for:", o: ["Color vision", "Vision in low light", "Sharp, detailed vision", "Detecting movement only in the center of the visual field"], a: 1 },
+                { q: "The process of converting light energy into a neural signal is called:", o: ["Sensation", "Perception", "Transduction", "Adaptation"], a: 2 },
+                { q: "The **fovea** is the part of the retina with the sharpest vision because:", o: ["It has no photoreceptors.", "It has the highest concentration of rods.", "It has the highest concentration of cones.", "It is where the optic nerve leaves the eye."], a: 2 },
+                { q: "A person's ability to see a whole object even when part of it is hidden from view is an example of the Gestalt principle of:", o: ["Proximity", "Continuity", "Closure", "Similarity"], a: 2 },
+                { q: "The **cochlea** and the **semicircular canals** are both found in the:", o: ["Outer ear", "Middle ear", "Inner ear", "Auditory canal"], a: 2 },
+                { q: "Which color vision theory is supported by the existence of three types of cones in the eye?", o: ["Opponent-process theory", "Trichromatic theory", "Frequency theory", "Gate-control theory"], a: 1 },
+                { q: "The **eardrum** vibrates in response to sound waves and then transfers these vibrations to the:", o: ["Cochlea", "Auditory nerve", "Hammer, anvil, and stirrup", "Pinna"], a: 2 },
+                { q: "The **blind spot** is caused by the absence of photoreceptors at the point where the:", o: ["Retina connects to the lens.", "Pupil is located.", "Optic nerve leaves the eye.", "Fovea is located."], a: 2 },
+                { q: "Our ability to perceive a car as a car, even when we see it from different angles or distances, is known as:", o: ["Perceptual constancy", "Sensory adaptation", "Absolute threshold", "Sensory discrimination"], a: 0 },
+                { q: "Which of the following is a monocular cue for depth perception?", o: ["Retinal disparity", "Linear perspective", "Convergence", "Binocular cues"], a: 1 },
+                { q: "Which part of the eye is responsible for focusing light onto the retina?", o: ["Pupil", "Iris", "Lens", "Cornea"], a: 2 },
+                { q: "The **auditory nerve** sends sound signals from the cochlea to the:", o: ["Thalamus", "Frontal lobe", "Amygdala", "Occipital lobe"], a: 0 },
+                { q: "When you feel the vibrations of a loud bass drum, it is a matter of:", o: ["Sensation", "Perception", "Transduction", "All of the above"], a: 3 },
+                { q: "The **gestalt principle** of **continuity** states that we tend to perceive:", o: ["A continuous pattern rather than separate pieces.", "Similar objects as a group.", "Objects that are close together as a group.", "Incomplete objects as being complete."], a: 0 },
+                { q: "The loudness of a sound is determined by the sound wave's:", o: ["Frequency", "Wavelength", "Amplitude", "Pitch"], a: 2 }
+            ]
+        };
+
+        let state = {
+            currentCategory: 'historyAndResearch',
+            userAnswers: {},
+            score: 0,
+            attempted: 0,
+        };
+
+        const questionContainer = document.getElementById('question-container');
+        const categoryNav = document.getElementById('category-nav');
+        const scoreEl = document.getElementById('score');
+        const totalAttemptedEl = document.getElementById('total-attempted');
+        const percentageEl = document.getElementById('percentage');
+        const resetBtn = document.getElementById('reset-btn');
+        const nextTestBtn = document.getElementById('next-test-btn');
+        const scrollToTopBtn = document.getElementById('scroll-to-top');
+
+        function renderQuestions() {
+            questionContainer.innerHTML = '';
+            const questions = examData[state.currentCategory];
+            questions.forEach((qData, index) => {
+                const questionId = `${state.currentCategory}-${index}`;
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-xl shadow-md p-6';
+                
+                let optionsHtml = '';
+                qData.o.forEach((option, optionIndex) => {
+                    optionsHtml += `<div class="option-btn p-3 mt-2 bg-gray-100 rounded-lg" data-question-id="${questionId}" data-option-index="${optionIndex}">${String.fromCharCode(97 + optionIndex)}) ${option}</div>`;
+                });
+
+                card.innerHTML = `
+                    <p class="font-semibold text-lg text-gray-900">${index + 1}. ${qData.q}</p>
+                    <div class="options-container mt-4 space-y-2">${optionsHtml}</div>
+                `;
+                questionContainer.appendChild(card);
+            });
+        }
+
+        function handleAnswerClick(e) {
+            const target = e.target.closest('.option-btn');
+            if (!target) return;
+
+            const { questionId, optionIndex } = target.dataset;
+            if (state.userAnswers[questionId] !== undefined) return; 
+
+            const [category, qIndexStr] = questionId.split('-');
+            const qIndex = parseInt(qIndexStr);
+            const questionData = examData[category][qIndex];
+            const selectedOption = parseInt(optionIndex);
+
+            state.userAnswers[questionId] = selectedOption;
+            state.attempted++;
+
+            const optionsContainer = target.parentElement;
+            const allOptions = optionsContainer.querySelectorAll('.option-btn');
+            
+            allOptions.forEach(opt => opt.classList.add('disabled'));
+
+            if (selectedOption === questionData.a) {
+                state.score++;
+                target.classList.add('correct');
+            } else {
+                target.classList.add('incorrect');
+                allOptions[questionData.a].classList.add('correct');
+            }
+            updateScoreboard();
+        }
+        
+        function updateScoreboard() {
+            scoreEl.textContent = state.score;
+            totalAttemptedEl.textContent = state.attempted;
+            const percentage = state.attempted === 0 ? 0 : Math.round((state.score / state.attempted) * 100);
+            percentageEl.textContent = percentage;
+        }
+
+        function handleNavClick(e) {
+            if (e.target.tagName !== 'BUTTON') return;
+            const newCategory = e.target.dataset.category;
+            if (newCategory === state.currentCategory) return;
+            
+            state.currentCategory = newCategory;
+            
+            document.querySelectorAll('#category-nav button').forEach(btn => btn.classList.remove('active'));
+            e.target.classList.add('active');
+            
+            renderQuestions();
+        }
+        
+        function resetExam() {
+            state.userAnswers = {};
+            state.score = 0;
+            state.attempted = 0;
+            updateScoreboard();
+            renderQuestions();
+        }
+
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        function toggleScrollButton() {
+            if (window.pageYOffset > 300) {
+                scrollToTopBtn.classList.add('visible');
+            } else {
+                scrollToTopBtn.classList.remove('visible');
+            }
+        }
+
+        function init() {
+            categoryNav.addEventListener('click', handleNavClick);
+            questionContainer.addEventListener('click', handleAnswerClick);
+            resetBtn.addEventListener('click', resetExam);
+            scrollToTopBtn.addEventListener('click', scrollToTop);
+            window.addEventListener('scroll', toggleScrollButton);
+            renderQuestions();
+            updateScoreboard();
+        }
+
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Psychology Exam: Test 3</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chosen Palette: Calm Harmony -->
+    <!-- Application Structure Plan: The SPA is designed as an interactive study tool, not a formal test. It's structured into three thematic sections mirroring the exam content, allowing users to focus their study. The core interaction is immediate feedback: users select an answer and instantly see if it's correct, which reinforces learning. A dynamic scoreboard provides constant progress tracking. This structure was chosen for its user-friendliness and focus on active recall and reinforcement, which is more effective for studying than a traditional test format. -->
+    <!-- Visualization & Content Choices: The primary content is the multiple-choice questions from the source report. Goal: Test Knowledge & Reinforce Learning. Presentation Method: Interactive quiz cards. Interaction: Users click an option to get immediate color-coded feedback (green for correct, red for incorrect). Justification: This direct interaction provides instant gratification and solidifies learning by correcting misunderstandings on the spot. A dynamic scoreboard (HTML/CSS/JS) visualizes progress. No charts are needed as the source material is textual. Library/Method: Vanilla JavaScript for all logic and DOM manipulation. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            background-color: #F5F5F4;
+            font-family: 'Inter', sans-serif;
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        .nav-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .nav-btn.active {
+            background-color: #3B82F6;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .option-btn {
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            border: 2px solid transparent;
+        }
+        .option-btn:hover:not(.disabled) {
+            background-color: #EFF6FF;
+            border-color: #60A5FA;
+        }
+        .option-btn.correct {
+            background-color: #D1FAE5;
+            border-color: #34D399;
+            color: #065F46;
+            font-weight: 600;
+        }
+        .option-btn.incorrect {
+            background-color: #FEE2E2;
+            border-color: #F87171;
+            color: #991B1B;
+            font-weight: 600;
+        }
+        .option-btn.disabled {
+            cursor: not-allowed;
+            opacity: 0.9;
+        }
+        .scroll-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #3B82F6;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: all 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+            z-index: 1000;
+        }
+        .scroll-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .scroll-to-top:hover {
+            background-color: #2563EB;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px -1px rgb(0 0 0 / 0.15), 0 4px 6px -2px rgb(0 0 0 / 0.1);
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="container mx-auto max-w-5xl p-4 sm:p-6 lg:p-8">
+
+        <header class="bg-white rounded-xl shadow-md p-6 mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 text-center mb-2">Interactive Psychology Exam: Test 3</h1>
+            <p class="text-center text-gray-600 mb-6">Select a category to begin studying. Your answers will be checked instantly.</p>
+            <div id="scoreboard" class="bg-blue-50 text-blue-800 rounded-lg p-4 text-center">
+                <p class="text-lg font-semibold">Score: <span id="score">0</span> / <span id="total-attempted">0</span></p>
+                <p class="text-2xl font-bold mt-1"><span id="percentage">0</span>%</p>
+            </div>
+        </header>
+        
+        <nav class="flex flex-col sm:flex-row justify-center items-center gap-3 mb-8" id="category-nav">
+            <button data-category="historyAndResearch" class="nav-btn w-full sm:w-auto active bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-6 rounded-lg shadow">History & Research</button>
+            <button data-category="biologicalPsych" class="nav-btn w-full sm:w-auto bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-6 rounded-lg shadow">Biological Psych</button>
+            <button data-category="sensationAndPerception" class="nav-btn w-full sm:w-auto bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-6 rounded-lg shadow">Sensation & Perception</button>
+        </nav>
+
+        <main id="question-container" class="space-y-6">
+            <!-- Questions will be dynamically inserted here -->
+        </main>
+        
+        <footer class="text-center mt-12 space-x-4">
+            <button id="reset-btn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-8 rounded-lg shadow-md transition-transform transform hover:scale-105">Reset Exam</button>
+            <a href="exam4.html" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-8 rounded-lg shadow-md inline-block transition-transform transform hover:scale-105">Go to Test 4</a>
+        </footer>
+
+    </div>
+
+    <!-- Scroll to Top Button -->
+    <button id="scroll-to-top" class="scroll-to-top" title="Scroll to top">↑</button>
+
+    <script>
+        const examData = {
+            historyAndResearch: [
+                { q: "Which of the following research methods is the only one that can establish a cause-and-effect relationship?", o: ["Correlational study", "Case study", "Survey", "Experiment"], a: 3 },
+                { q: "A researcher finds that as a student’s study time increases, their grades also increase. This relationship is an example of a:", o: ["Negative correlation", "Positive correlation", "No correlation", "Spurious correlation"], a: 1 },
+                { q: "The philosophical debate about whether behavior is due to heredity or environment is known as the:", o: ["Mind-brain problem", "Nature-nurture problem", "Consciousness-unconsciousness problem", "Free will-determinism problem"], a: 1 },
+                { q: "The psychological perspective that focuses on how natural selection has shaped a person's thoughts and behaviors is:", o: ["Cognitive", "Evolutionary", "Humanistic", "Biological"], a: 1 },
+                { q: "A confounding variable is a variable that is:", o: ["Measured by the researcher to determine the outcome.", "Manipulated by the researcher.", "An extraneous variable that affects the results.", "A variable that is kept constant between groups."], a: 2 },
+                { q: "The main purpose of a **survey** as a research method is to:", o: ["Observe and record behavior in a natural setting.", "Examine one person in depth.", "Gather a lot of information from many people quickly.", "Manipulate variables to find cause and effect."], a: 2 },
+                { q: "In an experiment designed to test if a new drug improves memory, the drug is the:", o: ["Dependent variable", "Independent variable", "Confounding variable", "Control variable"], a: 1 },
+                { q: "Which school of thought focused on identifying the elements of conscious experience through introspection?", o: ["Functionalism", "Structuralism", "Behaviorism", "Psychoanalysis"], a: 1 },
+                { q: "Who is known for developing the psychoanalytic theory, which emphasizes the unconscious mind?", o: ["B.F. Skinner", "Carl Rogers", "Sigmund Freud", "William James"], a: 2 },
+                { q: "A researcher wants to study how children interact on a playground. The best research method for this would be:", o: ["A case study", "A survey", "Naturalistic observation", "An experiment"], a: 2 },
+                { q: "Parsimony, as a principle of scientific inquiry, suggests that scientists should prefer the explanation that is:", o: ["The most complex and detailed.", "The most well-known.", "The most controversial.", "The simplest and least complicated."], a: 3 },
+                { q: "The group that receives the placebo in an experiment is the:", o: ["Experimental group", "Control group", "Correlational group", "Observational group"], a: 1 },
+                { q: "Descriptive statistics are used to:", o: ["Make generalizations about a population.", "Summarize and organize data.", "Test hypotheses.", "Find a cause-and-effect relationship."], a: 1 },
+                { q: "Which psychological perspective emphasizes the importance of a person’s subjective experience and free will?", o: ["Cognitive", "Behavioral", "Humanistic", "Biological"], a: 2 },
+                { q: "The final step in the condensed scientific method is to:", o: ["Formulate a hypothesis", "Collect data", "Analyze data", "Draw conclusions"], a: 3 }
+            ],
+            biologicalPsych: [
+                { q: "Which part of the neuron is covered by a myelin sheath to speed up neural impulses?", o: ["Dendrite", "Axon", "Synapse", "Cell body"], a: 1 },
+                { q: "An **antagonist** is a drug that:", o: ["Increases the effect of a neurotransmitter.", "Blocks the effect of a neurotransmitter.", "Breaks down a neurotransmitter.", "Mimics a neurotransmitter."], a: 1 },
+                { q: "The tiny space between the axon terminal of one neuron and the dendrite of another is the:", o: ["Myelin sheath", "Axon hillock", "Synapse", "Neural gap"], a: 2 },
+                { q: "The master gland of the endocrine system is the:", o: ["Adrenal gland", "Thyroid gland", "Pituitary gland", "Pancreas"], a: 2 },
+                { q: "The brain imaging technique that measures electrical activity in the brain through electrodes on the scalp is a(n):", o: ["fMRI", "EEG", "PET scan", "MRI"], a: 1 },
+                { q: "The brain structure that is a key part of the limbic system and is crucial for forming new memories is the:", o: ["Amygdala", "Hypothalamus", "Thalamus", "Hippocampus"], a: 3 },
+                { q: "The **autonomic nervous system** is a division of the nervous system that controls:", o: ["Voluntary movements", "Reflexes", "Involuntary actions like heart rate and digestion", "Sensory input from the environment"], a: 2 },
+                { q: "The **frontal lobe** is primarily responsible for:", o: ["Processing visual information.", "Sensation and spatial awareness.", "Executive functions like planning and judgment.", "Hearing and language comprehension."], a: 2 },
+                { q: "The electrical signal that travels down a neuron's axon is called the:", o: ["Resting potential", "Action potential", "Depolarization", "Synaptic transmission"], a: 1 },
+                { q: "Which neurotransmitter is most associated with the brain's reward and motivation system?", o: ["Serotonin", "GABA", "Dopamine", "Acetylcholine"], a: 2 },
+                { q: "The division of the nervous system that controls voluntary movements is the:", o: ["Autonomic nervous system", "Sympathetic nervous system", "Central nervous system", "Somatic nervous system"], a: 3 },
+                { q: "The brain’s ability to change and adapt as a result of experience is known as:", o: ["Neurogenesis", "Myelination", "Brain plasticity", "Lateralization"], a: 2 },
+                { q: "The **thalamus** is a brain structure that:", o: ["Regulates hunger and thirst.", "Processes emotional responses.", "Acts as a relay station for sensory information.", "Coordinates voluntary movements."], a: 2 },
+                { q: "A person with damage to their **Broca's area** would most likely have difficulty with:", o: ["Understanding language", "Speaking fluently", "Forming memories", "Coordinating movements"], a: 1 },
+                { q: "The **cerebellum** is the brain structure responsible for:", o: ["Relaying sensory information.", "Processing emotional responses.", "Regulating basic body functions.", "Coordinating voluntary movements and balance."], a: 3 }
+            ],
+            sensationAndPerception: [
+                { q: "The process of organizing and interpreting sensory information to recognize objects and events is:", o: ["Sensation", "Perception", "Transduction", "Absolute threshold"], a: 1 },
+                { q: "Which part of the ear is a coiled, fluid-filled tube that contains the sensory receptors for hearing?", o: ["Eardrum", "Cochlea", "Pinna", "Auditory canal"], a: 1 },
+                { q: "In the eye, the **fovea** is the part of the retina that contains a high concentration of:", o: ["Rods", "Cones", "Bipolar cells", "Ganglion cells"], a: 1 },
+                { q: "Which theory of color vision best explains the phenomenon of afterimages?", o: ["Trichromatic theory", "Opponent-process theory", "Place theory", "Frequency theory"], a: 1 },
+                { q: "The **Muller-Lyer illusion** is an example of how our perception of an object’s length can be distorted by:", o: ["Color cues", "Motion cues", "Visual depth cues", "Auditory cues"], a: 2 },
+                { q: "Which of the following is an example of **bottom-up processing**?", o: ["Using your knowledge of the alphabet to read a messy word.", "Recognizing a familiar face in a crowd.", "Detecting the scent of a skunk for the first time.", "Hearing a song and instantly knowing the artist."], a: 2 },
+                { q: "According to the **Gestalt psychologists**, our brains tend to group objects together based on their closeness. This principle is called:", o: ["Closure", "Similarity", "Proximity", "Continuity"], a: 2 },
+                { q: "Which theory of hearing suggests that pitch is determined by the specific place on the cochlea's membrane that is stimulated?", o: ["Frequency theory", "Place theory", "Opponent-process theory", "Gate-control theory"], a: 1 },
+                { q: "Which part of the eye is a muscle that adjusts the size of the pupil to control the amount of light entering?", o: ["Lens", "Cornea", "Retina", "Iris"], a: 3 },
+                { q: "The **Ponzo illusion** demonstrates the principle that our perception of size is influenced by:", o: ["Color constancy", "Linear perspective", "Retinal disparity", "Perceptual sets"], a: 1 },
+                { q: "The process by which sensory information is converted into a neural signal is called:", o: ["Sensation", "Perception", "Transduction", "Thresholding"], a: 2 },
+                { q: "What is the primary function of **rods** in the retina?", o: ["Color vision", "Vision in low light", "Sharp detail vision", "Transmitting signals to the optic nerve"], a: 1 },
+                { q: "The **eardrum** is a part of the:", o: ["Outer ear", "Middle ear", "Inner ear", "Auditory nerve"], a: 1 },
+                { q: "The **absolute threshold** is the minimum stimulation needed to detect a stimulus 50% of the time. This is a concept related to:", o: ["Sensation", "Perception", "Learning", "Memory"], a: 0 },
+                { q: "The part of the eye that contains the photoreceptors is the:", o: ["Lens", "Iris", "Retina", "Pupil"], a: 2 },
+                { q: "The **auditory nerve** transmits sound information from the **cochlea** to the:", o: ["Thalamus", "Temporal lobe", "Frontal lobe", "Parietal lobe"], a: 1 },
+                { q: "Which of the following describes the **frequency** of a sound wave?", o: ["The loudness of the sound", "The pitch of the sound", "The speed of the sound", "The location of the sound"], a: 1 },
+                { q: "Our ability to perceive an object as the same size regardless of its distance is called:", o: ["Size constancy", "Shape constancy", "Brightness constancy", "Perceptual set"], a: 0 },
+                { q: "The **blind spot** in our vision is due to:", o: ["The lens focusing light incorrectly.", "The presence of a high concentration of cones.", "The optic nerve leaving the eye, where there are no photoreceptors.", "The iris blocking out light."], a: 2 },
+                { q: "Which of the following best describes the **Trichromatic Theory** of color vision?", o: ["Colors are processed in opposing pairs.", "The brain has three different types of cones, each sensitive to a different wavelength of light.", "Color is a product of our past experiences.", "Color is processed in the frontal lobe of the brain."], a: 1 }
+            ]
+        };
+
+        let state = {
+            currentCategory: 'historyAndResearch',
+            userAnswers: {},
+            score: 0,
+            attempted: 0,
+        };
+
+        const questionContainer = document.getElementById('question-container');
+        const categoryNav = document.getElementById('category-nav');
+        const scoreEl = document.getElementById('score');
+        const totalAttemptedEl = document.getElementById('total-attempted');
+        const percentageEl = document.getElementById('percentage');
+        const resetBtn = document.getElementById('reset-btn');
+        const nextTestBtn = document.getElementById('next-test-btn');
+        const scrollToTopBtn = document.getElementById('scroll-to-top');
+
+        function renderQuestions() {
+            questionContainer.innerHTML = '';
+            const questions = examData[state.currentCategory];
+            questions.forEach((qData, index) => {
+                const questionId = `${state.currentCategory}-${index}`;
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-xl shadow-md p-6';
+                
+                let optionsHtml = '';
+                qData.o.forEach((option, optionIndex) => {
+                    optionsHtml += `<div class="option-btn p-3 mt-2 bg-gray-100 rounded-lg" data-question-id="${questionId}" data-option-index="${optionIndex}">${String.fromCharCode(97 + optionIndex)}) ${option}</div>`;
+                });
+
+                card.innerHTML = `
+                    <p class="font-semibold text-lg text-gray-900">${index + 1}. ${qData.q}</p>
+                    <div class="options-container mt-4 space-y-2">${optionsHtml}</div>
+                `;
+                questionContainer.appendChild(card);
+            });
+        }
+
+        function handleAnswerClick(e) {
+            const target = e.target.closest('.option-btn');
+            if (!target) return;
+
+            const { questionId, optionIndex } = target.dataset;
+            if (state.userAnswers[questionId] !== undefined) return; 
+
+            const [category, qIndexStr] = questionId.split('-');
+            const qIndex = parseInt(qIndexStr);
+            const questionData = examData[category][qIndex];
+            const selectedOption = parseInt(optionIndex);
+
+            state.userAnswers[questionId] = selectedOption;
+            state.attempted++;
+
+            const optionsContainer = target.parentElement;
+            const allOptions = optionsContainer.querySelectorAll('.option-btn');
+            
+            allOptions.forEach(opt => opt.classList.add('disabled'));
+
+            if (selectedOption === questionData.a) {
+                state.score++;
+                target.classList.add('correct');
+            } else {
+                target.classList.add('incorrect');
+                allOptions[questionData.a].classList.add('correct');
+            }
+            updateScoreboard();
+        }
+        
+        function updateScoreboard() {
+            scoreEl.textContent = state.score;
+            totalAttemptedEl.textContent = state.attempted;
+            const percentage = state.attempted === 0 ? 0 : Math.round((state.score / state.attempted) * 100);
+            percentageEl.textContent = percentage;
+        }
+
+        function handleNavClick(e) {
+            if (e.target.tagName !== 'BUTTON') return;
+            const newCategory = e.target.dataset.category;
+            if (newCategory === state.currentCategory) return;
+            
+            state.currentCategory = newCategory;
+            
+            document.querySelectorAll('#category-nav button').forEach(btn => btn.classList.remove('active'));
+            e.target.classList.add('active');
+            
+            renderQuestions();
+        }
+        
+        function resetExam() {
+            state.userAnswers = {};
+            state.score = 0;
+            state.attempted = 0;
+            updateScoreboard();
+            renderQuestions();
+        }
+
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        function toggleScrollButton() {
+            if (window.pageYOffset > 300) {
+                scrollToTopBtn.classList.add('visible');
+            } else {
+                scrollToTopBtn.classList.remove('visible');
+            }
+        }
+
+        function init() {
+            categoryNav.addEventListener('click', handleNavClick);
+            questionContainer.addEventListener('click', handleAnswerClick);
+            resetBtn.addEventListener('click', resetExam);
+            scrollToTopBtn.addEventListener('click', scrollToTop);
+            window.addEventListener('scroll', toggleScrollButton);
+            renderQuestions();
+            updateScoreboard();
+        }
+
+        init();
+    </script>
+</body>
+</html>

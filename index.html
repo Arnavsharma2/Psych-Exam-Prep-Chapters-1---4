@@ -44,6 +44,33 @@
             cursor: not-allowed;
             opacity: 0.9;
         }
+        .scroll-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #3B82F6;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: all 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+            z-index: 1000;
+        }
+        .scroll-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .scroll-to-top:hover {
+            background-color: #2563EB;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px -1px rgb(0 0 0 / 0.15), 0 4px 6px -2px rgb(0 0 0 / 0.1);
+        }
     </style>
 </head>
 <body class="text-gray-800">
@@ -53,7 +80,7 @@
         <header class="bg-white rounded-xl shadow-md p-6 mb-8">
             <div class="flex justify-between items-center mb-4">
                 <h1 class="text-3xl font-bold text-gray-900">Interactive Psychology Exam: Test 1</h1>
-                <a href="test2.html" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg shadow-md inline-block transition-transform transform hover:scale-105">Go to Test 2</a>
+                <a href="exam2.html" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg shadow-md inline-block transition-transform transform hover:scale-105">Go to Test 2</a>
             </div>
             <p class="text-center text-gray-600 mb-6">Select a category to begin studying. Your answers will be checked instantly.</p>
             <div id="scoreboard" class="bg-blue-50 text-blue-800 rounded-lg p-4 text-center">
@@ -77,6 +104,9 @@
         </footer>
 
     </div>
+
+    <!-- Scroll to Top Button -->
+    <button id="scroll-to-top" class="scroll-to-top" title="Scroll to top">↑</button>
 
     <script>
         const examData = {
@@ -151,6 +181,7 @@
         const totalAttemptedEl = document.getElementById('total-attempted');
         const percentageEl = document.getElementById('percentage');
         const resetBtn = document.getElementById('reset-btn');
+        const scrollToTopBtn = document.getElementById('scroll-to-top');
 
         function renderQuestions() {
             questionContainer.innerHTML = '';
@@ -231,10 +262,27 @@
             renderQuestions();
         }
 
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        function toggleScrollButton() {
+            if (window.pageYOffset > 300) {
+                scrollToTopBtn.classList.add('visible');
+            } else {
+                scrollToTopBtn.classList.remove('visible');
+            }
+        }
+
         function init() {
             categoryNav.addEventListener('click', handleNavClick);
             questionContainer.addEventListener('click', handleAnswerClick);
             resetBtn.addEventListener('click', resetExam);
+            scrollToTopBtn.addEventListener('click', scrollToTop);
+            window.addEventListener('scroll', toggleScrollButton);
             renderQuestions();
             updateScoreboard();
         }
